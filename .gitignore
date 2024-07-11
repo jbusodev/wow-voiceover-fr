@@ -1,0 +1,14 @@
+__pycache__
+datagrip
+.venv
+.vscode
+sql-data
+.env
+sql/db_dump
+assets/sql/db_dump
+assets/tts/
+generated
+.vscode/settings.json
+.DS_Store
+AI_VoiceOver/AI_VoiceOver.toc
+RELEASE
