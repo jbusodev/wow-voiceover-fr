@@ -4,8 +4,8 @@ datagrip
 .vscode
 sql-data
 .env
-sql/db_dump
 assets/sql/db_dump
+sql_fr_query.sql
 assets/tts/
 generated
 .vscode/settings.json
