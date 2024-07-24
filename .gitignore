@@ -6,6 +6,7 @@ sql-data
 .env
 assets/sql/db_dump
 sql_fr_query.sql
+sql_output.txt
 assets/tts/
 generated
 .vscode/settings.json
