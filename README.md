@@ -11,7 +11,7 @@ This project contains a CLI (Command Line Interface) tool that generates Text-to
 - Generates lookup tables for use in addon.
 - Parallel processing for faster generation.
 
-## Below is for developers only. Go to [releases](https://github.com/mrthinger/wow-voiceover/releases) if youre looking to install the addon.
+## Below is for developers only. Go to [releases](https://github.com/jbusodev/wow-voiceover-fr/releases) if youre looking to install the addon.
 
 ## Requirements
 - python 3.10+
