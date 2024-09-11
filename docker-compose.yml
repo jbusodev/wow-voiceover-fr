@@ -10,16 +10,6 @@ services:
       - wowdb-data:/var/lib/mysql
     ports:
       - "3306:3306"
-
-  # python-script:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   environment:
-  #     - DISPLAY=:99
-  #   volumes:
-  #     - ./:/app
-  #   command: sh -c "Xvfb :99 & python zone_selector.py"
-
+      
 volumes:
   wowdb-data:
