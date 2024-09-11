@@ -9,6 +9,7 @@ sql_fr_query.sql
 sql_output.txt
 assets/tts/
 generated
+translator/assets/voices/*
 .vscode/settings.json
 .DS_Store
 AI_VoiceOver/AI_VoiceOver.toc
