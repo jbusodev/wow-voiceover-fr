@@ -20,11 +20,13 @@ MODULE_NAME = 'AI_VoiceOverData_Vanilla'
 
 STATIC_MAX_WORKERS = 2
 
-INPUT_FOLDER = 'translator/assets/wow-classic-en/AI_VoiceOverData_Vanilla/generated'
-OUTPUT_FOLDER = 'translator/assets/wow-classic-fr/AI_VoiceOverData_Vanilla/generated'
+INPUT_FOLDER = 'translator/assets'
+# OUTPUT_FOLDER = 'translator/assets/wow-classic-fr/AI_VoiceOverData_Vanilla/generated'
+OUTPUT_FOLDER = 'translator/assets/wow-classic-test/generated'
 DEFAULT_VOICE = 'translator/assets/sounds/default/medivh.mp3'
 
-SOUND_INPUT_FOLDER = INPUT_FOLDER + '/sounds'
+RVC_INPUT_FOLDER = INPUT_FOLDER + '/rvc_models'
+SOUND_INPUT_FOLDER = INPUT_FOLDER + '/voices'
 SOUND_OUTPUT_FOLDER = OUTPUT_FOLDER + '/sounds'
 DATAMODULE_TABLE_GUARD_CLAUSE = 'if not VoiceOver or not VoiceOver.DataModules then return end'
 REPLACE_DICT = {'$b': '\n', '$B': '\n', '$n': 'aventurier', '$N': 'Aventurier',
@@ -83,10 +85,11 @@ class TTSProcessor:
 
     def tts(self, text: str, inputName: str, outputName: str, output_subfolder: str, language: str, forceGen: bool = False):
         result = ""
-        outpath = os.path.join(SOUND_OUTPUT_FOLDER,
-                               output_subfolder, outputName)
-        inpath = os.path.join(SOUND_INPUT_FOLDER, output_subfolder, inputName)
-
+        outpath = os.path.join(SOUND_OUTPUT_FOLDER, output_subfolder, outputName)
+        
+        # input voices to custom race-sex corresponding voice. see tts_row()
+        inpath = os.path.join(SOUND_INPUT_FOLDER, inputName)
+        
         if os.path.isfile(outpath) and forceGen is not True:
             result = "duplicate generation, skipping"
             return
@@ -95,8 +98,7 @@ class TTSProcessor:
             inpath = DEFAULT_VOICE
             return
 
-        Converter().convert(text=text, input_sound_path=inpath,
-                            language=language, output_sound_path=outpath)
+        Converter().convert(text=text, input_sound_path=inpath, language=language, output_sound_path=outpath)
 
         result = f"Audio file saved successfully!: {outpath}"
 
@@ -172,15 +174,15 @@ class TTSProcessor:
         file_name = f'{row["quest"]}-{row["source"]}' if row['quest'] else f'{row["templateText_race_gender_hash"]}'
         if row['player_gender'] is not None:
             file_name = row['player_gender'] + '-' + file_name
-        file_name = file_name + '.mp3'
+        file_name = file_name + '.ogg'
         subfolder = 'quests' if row['quest'] else 'gossip'
         language = 'fr'
 
-        input_file_name = file_name
+        # source voice from corresponding race-gender
+        input_file_name = row['race'] + '-' + row['gender'] + '.ogg'
         output_file_name = file_name
-
-        self.tts(tts_text, input_file_name,
-                 output_file_name, subfolder, language)
+        
+        self.tts(tts_text, input_file_name, output_file_name, subfolder, language)
 
     def create_output_dirs(self):
         create_output_subdirs('')
@@ -372,5 +374,5 @@ def run():
     print('loop')
 
 
-if __name__ == '__main__':
-    run()
+# if __name__ == '__main__':
+#     run()

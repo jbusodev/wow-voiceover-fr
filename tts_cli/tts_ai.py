@@ -4,17 +4,24 @@ from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
 from tqdm import tqdm
 import numpy as np
+import torch
+import librosa
+from fairseq import checkpoint_utils
 
 models_path = os.getenv("TTS_MODELS_JSON_PATH")
 assets_path = os.getenv("ASSETS_PATH")
 
-print(f"tts models path is located at {models_path}")
-print(f"tts assets path is located at {assets_path}")
+# print(f"tts models path is located at {models_path}")
+# print(f"tts assets path is located at {assets_path}")
 
 model_manager = ModelManager(models_path, output_prefix=assets_path)
-model_path, _, model_item = model_manager.download_model(
-    "tts_models/multilingual/multi-dataset/xtts_v2"
-)
+tts_model_name = "tts_models/multilingual/multi-dataset/xtts_v2"
+
+tts_model_path = assets_path + 'tts/' + tts_model_name.replace("/", "--")
+
+# downloads model if not exists in assets - this condition delays starting TTS for efficiency if model is already downloaded
+if not os.path.exists(tts_model_path):
+    tts_model_path, _, model_item = model_manager.download_model("tts_models/multilingual/multi-dataset/xtts_v2")
 
 RECREATION_REQUIRED = False
 
@@ -22,8 +29,8 @@ RECREATION_REQUIRED = False
 lock = threading.Lock()
 
 syn = Synthesizer(
-    tts_checkpoint=model_path,
-    tts_config_path=os.path.join(model_path, "config.json"),
+    tts_checkpoint=tts_model_path,
+    tts_config_path=os.path.join(tts_model_path, "config.json"),
     use_cuda=True,
 )
 
@@ -46,16 +53,16 @@ class Converter(metaclass=Singleton):
         self.tqdm_bar_format = "{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}] {postfix}"
         self.tqdm = None
         self.failed_inputs = np.empty((0,), dtype=object)
-
+        
     def convert(self, text, input_sound_path, output_sound_path, language):
-        print(f"text: {text}")
+        # print(f"text: {text}")
         print(f"input: {input_sound_path}")
         print(f"output: {output_sound_path}")
 
         try:
             syn = Synthesizer(
-                tts_checkpoint=model_path,
-                tts_config_path=os.path.join(model_path, "config.json"),
+                tts_checkpoint=tts_model_path,
+                tts_config_path=os.path.join(tts_model_path, "config.json"),
                 use_cuda=True,
             )
             outputs = syn.tts(
@@ -72,9 +79,9 @@ class Converter(metaclass=Singleton):
 
             return syn.save_wav(outputs, output_sound_path)
 
-        except:
-            self.failed_inputs = np.append(
-                self.failed_inputs, input_sound_path)
+        except Exception as e:
+            print(f"Error in conversion: {str(e)}")
+            self.failed_inputs = np.append(self.failed_inputs, input_sound_path)
             return None
 
     def generate_chunks(self, df):
